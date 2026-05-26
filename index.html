@@ -51,6 +51,34 @@
       color: transparent;
     }
 
+    /* Thanh tìm kiếm mới */
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: #f0f4f9;
+      padding: 4px 12px;
+      border-radius: 60px;
+    }
+    #searchInput {
+      background: transparent;
+      border: none;
+      outline: none;
+      font-size: 0.9rem;
+      width: 200px;
+    }
+    #clearSearchBtn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.1rem;
+      color: #6c8faa;
+      transition: color 0.2s;
+    }
+    #clearSearchBtn:hover {
+      color: #1f6e8c;
+    }
+
     .auth-buttons {
       display: flex;
       gap: 12px;
@@ -338,6 +366,8 @@
     @media (max-width: 680px) {
       .app-container { padding: 16px; }
       .info-grid { grid-template-columns: 1fr; }
+      .search-box { width: 100%; margin-top: 8px; }
+      #searchInput { width: 100%; }
     }
   </style>
 </head>
@@ -346,6 +376,11 @@
   <!-- header -->
   <div class="top-bar">
     <div class="logo"><h1>✨ InfoHub · Quản lý nhân vật</h1></div>
+    <!-- Thanh tìm kiếm mới -->
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="🔍 Tìm kiếm theo tên..." />
+      <button id="clearSearchBtn" title="Xóa tìm kiếm">✖️</button>
+    </div>
     <div class="auth-buttons" id="authArea"></div>
   </div>
 
@@ -436,6 +471,7 @@
   // State hiện tại
   let currentUser = getSession(); // { username, role }
   let currentCategory = "hot_go";
+  let searchKeyword = "";          // Thêm biến tìm kiếm
   let itemsArray = getItems();
 
   // DOM Elements
@@ -449,6 +485,8 @@
   const imageUpload = document.getElementById('imageUpload');
   const imageUrlInput = document.getElementById('imageUrl');
   const addBtn = document.getElementById('addItemBtn');
+  const searchInput = document.getElementById('searchInput');
+  const clearSearchBtn = document.getElementById('clearSearchBtn');
 
   // Helper: render auth buttons
   function renderAuth() {
@@ -623,11 +661,20 @@
     renderCurrentView();
   }
 
-  // render các card theo category hiện tại
+  // render các card theo category hiện tại (có hỗ trợ tìm kiếm)
   function renderCurrentView() {
-    const filtered = itemsArray.filter(item => item.category === currentCategory);
+    // Lọc theo category trước
+    let filtered = itemsArray.filter(item => item.category === currentCategory);
+    // Lọc theo từ khóa tìm kiếm (nếu có)
+    if (searchKeyword.trim() !== "") {
+      const kw = searchKeyword.trim().toLowerCase();
+      filtered = filtered.filter(item => item.name.toLowerCase().includes(kw));
+    }
     if (filtered.length === 0) {
-      contentGrid.innerHTML = `<div class="empty-msg">📭 Chưa có thông tin nào trong chuyên mục này. ${currentUser?.role === 'admin' ? 'Hãy thêm ngay!' : 'Quay lại sau nhé.'}</div>`;
+      const msg = searchKeyword.trim() !== "" 
+        ? `📭 Không tìm thấy nhân vật nào có tên "${escapeHtml(searchKeyword)}" trong chuyên mục này.`
+        : `📭 Chưa có thông tin nào trong chuyên mục này. ${currentUser?.role === 'admin' ? 'Hãy thêm ngay!' : 'Quay lại sau nhé.'}`;
+      contentGrid.innerHTML = `<div class="empty-msg">${msg}</div>`;
       return;
     }
     contentGrid.innerHTML = filtered.map(item => {
@@ -704,6 +751,21 @@
     renderCategoryMenu();
     renderAdminPanel();
     renderCurrentView();
+  }
+
+  // Sự kiện cho thanh tìm kiếm
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      searchKeyword = e.target.value;
+      renderCurrentView();
+    });
+  }
+  if (clearSearchBtn) {
+    clearSearchBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      searchKeyword = '';
+      renderCurrentView();
+    });
   }
 
   // lắng nghe thêm mới
