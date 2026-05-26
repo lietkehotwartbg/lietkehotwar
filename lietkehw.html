@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Admin Portal - Quản lý thông tin</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+    }
+
+    body {
+      background: #f4f7fc;
+      color: #1e2a3e;
+      padding: 20px;
+    }
+
+    /* container chính */
+    .app-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 32px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+      overflow: hidden;
+      padding: 20px 24px 32px;
+    }
+
+    /* header & auth */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 28px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #e9edf2;
+    }
+
+    .logo h1 {
+      font-size: 1.7rem;
+      font-weight: 600;
+      background: linear-gradient(135deg, #1f6e8c, #0e4b62);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .auth-buttons {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    button, .btn-like {
+      background: #eef2f5;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 40px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.9rem;
+      color: #1e4663;
+    }
+
+    button.primary {
+      background: #1f6e8c;
+      color: white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    button.primary:hover {
+      background: #0e5a75;
+      transform: translateY(-1px);
+    }
+
+    button.danger {
+      background: #fde2e2;
+      color: #b91c1c;
+    }
+    button.danger:hover {
+      background: #fcc5c5;
+    }
+
+    button.outline {
+      border: 1px solid #bfd7e8;
+      background: white;
+    }
+
+    .user-greeting {
+      background: #e6f4f0;
+      padding: 6px 14px;
+      border-radius: 40px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    /* menu 4 phần */
+    .category-menu {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 25px 0 20px;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 12px;
+    }
+
+    .cat-btn {
+      background: transparent;
+      font-size: 1.05rem;
+      font-weight: 600;
+      padding: 8px 20px;
+      border-radius: 60px;
+      color: #2c4f6e;
+    }
+
+    .cat-btn.active {
+      background: #1f6e8c;
+      color: white;
+      box-shadow: 0 4px 8px rgba(31,110,140,0.2);
+    }
+
+    /* grid thông tin */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+      margin: 20px 0 30px;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 28px;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.05);
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 1px solid #eef2f8;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 24px -8px rgba(0,0,0,0.12);
+    }
+
+    .card-img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      background: #eef2f5;
+      display: block;
+    }
+
+    .card-content {
+      padding: 18px 18px 12px;
+    }
+
+    .card-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #0f2e3f;
+    }
+
+    .card-desc {
+      color: #2d4a6e;
+      line-height: 1.4;
+      font-size: 0.9rem;
+      margin-bottom: 14px;
+    }
+
+    .card-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid #edf2f7;
+    }
+
+    .comment-section {
+      margin-top: 14px;
+      background: #fafcff;
+      border-radius: 20px;
+      padding: 10px 12px;
+      font-size: 0.85rem;
+    }
+
+    .comment-list {
+      max-height: 150px;
+      overflow-y: auto;
+      margin-bottom: 8px;
+    }
+
+    .comment-item {
+      background: white;
+      border-radius: 20px;
+      padding: 6px 10px;
+      margin-bottom: 6px;
+      font-size: 0.8rem;
+      border-left: 3px solid #1f6e8c;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    }
+
+    .comment-username {
+      font-weight: 700;
+      color: #1f6e8c;
+    }
+
+    .comment-text {
+      word-break: break-word;
+    }
+
+    .comment-form {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .comment-form input {
+      flex: 1;
+      padding: 8px 12px;
+      border-radius: 40px;
+      border: 1px solid #cbdde9;
+      background: white;
+    }
+    .comment-form button {
+      padding: 6px 16px;
+      font-size: 0.8rem;
+    }
+
+    /* admin form thêm mới */
+    .admin-panel {
+      background: #f0f6fa;
+      border-radius: 28px;
+      padding: 18px 20px;
+      margin: 20px 0 10px;
+    }
+
+    .admin-title {
+      font-weight: 700;
+      margin-bottom: 12px;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: flex-end;
+      margin-bottom: 12px;
+    }
+    .form-group {
+      flex: 1;
+      min-width: 150px;
+    }
+    .form-group label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 4px;
+      color: #2c536e;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 20px;
+      border: 1px solid #bdd4e4;
+      background: white;
+    }
+    textarea {
+      resize: vertical;
+    }
+    .image-preview {
+      max-width: 80px;
+      max-height: 60px;
+      margin-top: 5px;
+    }
+
+    /* modal đăng nhập/đăng ký */
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-card {
+      background: white;
+      width: 90%;
+      max-width: 400px;
+      border-radius: 36px;
+      padding: 28px 24px;
+      box-shadow: 0 20px 35px rgba(0,0,0,0.2);
+    }
+    .modal-card h3 {
+      margin-bottom: 18px;
+    }
+    .modal-card input {
+      width: 100%;
+      margin-bottom: 14px;
+      padding: 12px;
+      border-radius: 60px;
+      border: 1px solid #cbdde9;
+    }
+    .modal-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .hidden {
+      display: none;
+    }
+    .empty-msg {
+      text-align: center;
+      padding: 50px 20px;
+      background: #fafcff;
+      border-radius: 32px;
+      color: #6c8faa;
+    }
+    footer {
+      text-align: center;
+      margin-top: 36px;
+      font-size: 0.75rem;
+      color: #7c9bb0;
+    }
+    @media (max-width: 680px) {
+      .app-container { padding: 16px; }
+      .info-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-container" id="app">
+  <!-- header -->
+  <div class="top-bar">
+    <div class="logo"><h1>✨ InfoHub · Quản lý nhân vật</h1></div>
+    <div class="auth-buttons" id="authArea"></div>
+  </div>
+
+  <!-- menu 4 phần -->
+  <div class="category-menu" id="categoryMenu"></div>
+
+  <!-- admin panel (chỉ hiện với admin) -->
+  <div id="adminPanel" class="admin-panel hidden">
+    <div class="admin-title">🛠️ [Admin] Thêm / Cập nhật thông tin mới</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Chuyên mục</label>
+        <select id="newCategory"></select>
+      </div>
+      <div class="form-group">
+        <label>Tên nhân vật</label>
+        <input type="text" id="newName" placeholder="VD: Đình Vũ">
+      </div>
+      <div class="form-group">
+        <label>Mô tả</label>
+        <textarea id="newDesc" rows="1" placeholder="Thông tin chi tiết..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Hình ảnh (URL hoặc tải ảnh)</label>
+        <input type="file" id="imageUpload" accept="image/*">
+        <input type="text" id="imageUrl" placeholder="Hoặc dán URL ảnh" style="margin-top: 6px;">
+      </div>
+      <div class="form-group">
+        <button id="addItemBtn" class="primary" style="margin-top: 22px;">➕ Thêm thông tin</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- khu vực hiển thị grid -->
+  <div id="contentGrid" class="info-grid"></div>
+  <footer>📌 Chỉ Admin mới có quyền thêm/xóa. Người dùng cần đăng nhập để bình luận.</footer>
+</div>
+
+<script>
+  // ---------- DỮ LIỆU MẪU & CẤU HÌNH ----------
+  const STORAGE_KEYS = {
+    USERS: 'infohub_users',
+    ITEMS: 'infohub_items',
+    SESSION: 'infohub_session'
+  };
+  // categories mapping
+  const CATEGORIES = [
+    { id: "hot_go", label: "🔥 Hot gõ" },
+    { id: "hot_treo", label: "📌 Hot treo" },
+    { id: "hot_mic", label: "🎤 Hot mic" },
+    { id: "hot_dame", label: "⌨👨💻 Hot dame" }
+  ];
+
+  // Hàm khởi tạo dữ liệu mẫu
+  function initData() {
+    // Users: tài khoản admin cố định
+    let users = localStorage.getItem(STORAGE_KEYS.USERS);
+    if (!users) {
+      const defaultUsers = [
+        { username: "Saikydz1237", password: "Nguyendinhvu", role: "admin" }
+      ];
+      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(defaultUsers));
+    }
+    // Items mẫu cho 4 phần
+    let items = localStorage.getItem(STORAGE_KEYS.ITEMS);
+    if (!items) {
+      const sampleItems = [
+        { id: "item1", category: "hot_go", name: "Lâm Minh Đạt", description: "Game thủ chuyên nghiệp, kỹ năng gõ phím thần tốc.", imageUrl: "https://picsum.photos/id/26/400/300", comments: [] },
+        { id: "item2", category: "hot_go", name: "Ngọc Trinh", description: "Streamer nổi tiếng với tốc độ gõ ấn tượng.", imageUrl: "https://picsum.photos/id/64/400/300", comments: [] },
+        { id: "item3", category: "hot_treo", name: "Hoàng 'Thiết'", description: "Huyền thoại treo máy, bất bại trong các pha afk.", imageUrl: "https://picsum.photos/id/15/400/300", comments: [] },
+        { id: "item4", category: "hot_mic", name: "Mỹ Tâm (Miko)", description: "Chất giọng độc lạ, không thể thiếu trong game voice.", imageUrl: "https://picsum.photos/id/20/400/300", comments: [] },
+        { id: "item5", category: "hot_dame", name: "Quỳnh 'Dame'", description: "Sát thủ đường chéo, sát thương khủng.", imageUrl: "https://picsum.photos/id/29/400/300", comments: [] },
+        { id: "item6", category: "hot_dame", name: "Linh Rồng", description: "Combo dame chuẩn xác, quét sạch mọi đối thủ.", imageUrl: "https://picsum.photos/id/42/400/300", comments: [] },
+      ];
+      localStorage.setItem(STORAGE_KEYS.ITEMS, JSON.stringify(sampleItems));
+    }
+  }
+
+  // Helper lấy dữ liệu
+  function getUsers() { return JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]'); }
+  function saveUsers(users) { localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users)); }
+  function getItems() { return JSON.parse(localStorage.getItem(STORAGE_KEYS.ITEMS) || '[]'); }
+  function saveItems(items) { localStorage.setItem(STORAGE_KEYS.ITEMS, JSON.stringify(items)); }
+  function getSession() { return JSON.parse(localStorage.getItem(STORAGE_KEYS.SESSION) || 'null'); }
+  function setSession(session) { localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(session)); }
+  function clearSession() { localStorage.removeItem(STORAGE_KEYS.SESSION); }
+
+  // State hiện tại
+  let currentUser = getSession(); // { username, role }
+  let currentCategory = "hot_go";
+  let itemsArray = getItems();
+
+  // DOM Elements
+  const authArea = document.getElementById('authArea');
+  const categoryMenuDiv = document.getElementById('categoryMenu');
+  const contentGrid = document.getElementById('contentGrid');
+  const adminPanelDiv = document.getElementById('adminPanel');
+  const newCategorySelect = document.getElementById('newCategory');
+  const newNameInput = document.getElementById('newName');
+  const newDescInput = document.getElementById('newDesc');
+  const imageUpload = document.getElementById('imageUpload');
+  const imageUrlInput = document.getElementById('imageUrl');
+  const addBtn = document.getElementById('addItemBtn');
+
+  // Helper: render auth buttons
+  function renderAuth() {
+    if (currentUser) {
+      authArea.innerHTML = `
+        <span class="user-greeting">👋 Xin chào, ${currentUser.username} (${currentUser.role === 'admin' ? 'Quản trị viên' : 'Thành viên'})</span>
+        <button id="logoutBtn" class="outline">🚪 Đăng xuất</button>
+      `;
+      document.getElementById('logoutBtn')?.addEventListener('click', () => {
+        clearSession();
+        currentUser = null;
+        renderAuth();
+        renderAdminPanel();
+        renderCurrentView(); // cập nhật giao diện (ẩn form bình luận nếu chưa login)
+      });
+    } else {
+      authArea.innerHTML = `
+        <button id="showLoginBtn" class="outline">🔐 Đăng nhập</button>
+        <button id="showRegisterBtn" class="outline">📝 Đăng ký</button>
+      `;
+      document.getElementById('showLoginBtn')?.addEventListener('click', () => showAuthModal('login'));
+      document.getElementById('showRegisterBtn')?.addEventListener('click', () => showAuthModal('register'));
+    }
+  }
+
+  // Modal đăng nhập / đăng ký
+  function showAuthModal(mode) {
+    const modalDiv = document.createElement('div');
+    modalDiv.className = 'modal';
+    const isLogin = mode === 'login';
+    modalDiv.innerHTML = `
+      <div class="modal-card">
+        <h3>${isLogin ? 'Đăng nhập' : 'Tạo tài khoản'}</h3>
+        <input type="text" id="modalUsername" placeholder="Tên đăng nhập" autocomplete="off">
+        <input type="password" id="modalPassword" placeholder="Mật khẩu">
+        <div class="modal-buttons">
+          <button id="modalCancel">Hủy</button>
+          <button id="modalConfirm" class="primary">${isLogin ? 'Đăng nhập' : 'Đăng ký'}</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modalDiv);
+    const closeModal = () => modalDiv.remove();
+    modalDiv.querySelector('#modalCancel').onclick = closeModal;
+    modalDiv.querySelector('#modalConfirm').onclick = () => {
+      const username = modalDiv.querySelector('#modalUsername').value.trim();
+      const password = modalDiv.querySelector('#modalPassword').value;
+      if (!username || !password) { alert('Vui lòng nhập đầy đủ'); return; }
+      const users = getUsers();
+      if (isLogin) {
+        const user = users.find(u => u.username === username && u.password === password);
+        if (user) {
+          setSession({ username: user.username, role: user.role });
+          currentUser = { username: user.username, role: user.role };
+          closeModal();
+          renderAuth();
+          renderAdminPanel();
+          renderCurrentView();
+        } else {
+          alert('Sai tài khoản hoặc mật khẩu');
+        }
+      } else {
+        // đăng ký
+        if (users.find(u => u.username === username)) {
+          alert('Tên đăng nhập đã tồn tại');
+          return;
+        }
+        const newUser = { username, password, role: 'user' };
+        users.push(newUser);
+        saveUsers(users);
+        alert('Đăng ký thành công! Vui lòng đăng nhập.');
+        closeModal();
+        showAuthModal('login');
+      }
+    };
+  }
+
+  // render admin panel (chỉ hiện nếu admin)
+  function renderAdminPanel() {
+    const isAdmin = currentUser && currentUser.role === 'admin';
+    if (isAdmin) {
+      adminPanelDiv.classList.remove('hidden');
+      // fill category options
+      newCategorySelect.innerHTML = CATEGORIES.map(cat => `<option value="${cat.id}">${cat.label}</option>`).join('');
+    } else {
+      adminPanelDiv.classList.add('hidden');
+    }
+  }
+
+  // render menu categories
+  function renderCategoryMenu() {
+    categoryMenuDiv.innerHTML = CATEGORIES.map(cat => `
+      <button class="cat-btn ${currentCategory === cat.id ? 'active' : ''}" data-cat="${cat.id}">${cat.label}</button>
+    `).join('');
+    document.querySelectorAll('.cat-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        currentCategory = btn.dataset.cat;
+        renderCategoryMenu();
+        renderCurrentView();
+      });
+    });
+  }
+
+  // xóa item (chỉ admin)
+  function deleteItem(itemId) {
+    if (!currentUser || currentUser.role !== 'admin') { alert('Chỉ admin mới có quyền xóa!'); return; }
+    if (confirm('Xóa thông tin này?')) {
+      itemsArray = itemsArray.filter(i => i.id !== itemId);
+      saveItems(itemsArray);
+      renderCurrentView();
+    }
+  }
+
+  // thêm comment
+  function addComment(itemId, commentText) {
+    if (!currentUser) { alert('Vui lòng đăng nhập để bình luận'); return; }
+    if (!commentText.trim()) return;
+    const itemIndex = itemsArray.findIndex(i => i.id === itemId);
+    if (itemIndex === -1) return;
+    const newComment = {
+      id: Date.now() + Math.random(),
+      username: currentUser.username,
+      text: commentText.trim(),
+      timestamp: new Date().toLocaleString()
+    };
+    itemsArray[itemIndex].comments = itemsArray[itemIndex].comments || [];
+    itemsArray[itemIndex].comments.push(newComment);
+    saveItems(itemsArray);
+    renderCurrentView(); // refresh
+  }
+
+  // thêm item mới (admin)
+  function addNewItem() {
+    if (!currentUser || currentUser.role !== 'admin') { alert('Chỉ admin mới được thêm'); return; }
+    const category = newCategorySelect.value;
+    const name = newNameInput.value.trim();
+    const desc = newDescInput.value.trim();
+    let finalImage = imageUrlInput.value.trim();
+    // xử lý upload file -> base64
+    const file = imageUpload.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const base64 = e.target.result;
+        createItemWithImage(category, name, desc, base64);
+      };
+      reader.readAsDataURL(file);
+      return;
+    }
+    if (!finalImage) finalImage = "https://picsum.photos/id/1/400/300";
+    createItemWithImage(category, name, desc, finalImage);
+  }
+
+  function createItemWithImage(category, name, desc, image) {
+    if (!name) { alert('Vui lòng nhập tên'); return; }
+    const newId = Date.now() + '-' + Math.random().toString(36);
+    const newItem = {
+      id: newId,
+      category: category,
+      name: name,
+      description: desc || "Chưa có mô tả",
+      imageUrl: image,
+      comments: []
+    };
+    itemsArray.push(newItem);
+    saveItems(itemsArray);
+    // reset form
+    newNameInput.value = '';
+    newDescInput.value = '';
+    imageUrlInput.value = '';
+    imageUpload.value = '';
+    renderCurrentView();
+  }
+
+  // render các card theo category hiện tại
+  function renderCurrentView() {
+    const filtered = itemsArray.filter(item => item.category === currentCategory);
+    if (filtered.length === 0) {
+      contentGrid.innerHTML = `<div class="empty-msg">📭 Chưa có thông tin nào trong chuyên mục này. ${currentUser?.role === 'admin' ? 'Hãy thêm ngay!' : 'Quay lại sau nhé.'}</div>`;
+      return;
+    }
+    contentGrid.innerHTML = filtered.map(item => {
+      const isAdmin = currentUser && currentUser.role === 'admin';
+      const comments = item.comments || [];
+      return `
+        <div class="card" data-id="${item.id}">
+          <img class="card-img" src="${item.imageUrl}" alt="${item.name}" onerror="this.src='https://picsum.photos/id/13/400/300'">
+          <div class="card-content">
+            <div class="card-title">${escapeHtml(item.name)}</div>
+            <div class="card-desc">${escapeHtml(item.description)}</div>
+            <div class="card-actions">
+              ${isAdmin ? `<button class="danger delete-item-btn" data-id="${item.id}">🗑 Xóa thông tin</button>` : ''}
+              <span style="font-size:0.7rem;">💬 ${comments.length} bình luận</span>
+            </div>
+            <!-- Phần bình luận -->
+            <div class="comment-section">
+              <div class="comment-list" id="commentList-${item.id}">
+                ${comments.map(c => `<div class="comment-item"><span class="comment-username">${escapeHtml(c.username)}</span>: <span class="comment-text">${escapeHtml(c.text)}</span><div style="font-size: 0.6rem; opacity:0.6">${c.timestamp || ''}</div></div>`).join('')}
+                ${comments.length === 0 ? '<div style="padding: 5px 0; color:#8aaec0;">Chưa có bình luận nào.</div>' : ''}
+              </div>
+              ${currentUser ? `
+              <div class="comment-form">
+                <input type="text" placeholder="Viết bình luận..." id="commentInput-${item.id}">
+                <button class="primary submit-comment" data-id="${item.id}">Gửi</button>
+              </div>
+              ` : `<div style="font-size:0.75rem; text-align:center; padding:6px;">🔒 Đăng nhập để bình luận</div>`}
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // attach events xóa (admin)
+    if (currentUser && currentUser.role === 'admin') {
+      document.querySelectorAll('.delete-item-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const id = btn.dataset.id;
+          deleteItem(id);
+        });
+      });
+    }
+    // attach events comment
+    if (currentUser) {
+      document.querySelectorAll('.submit-comment').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const itemId = btn.dataset.id;
+          const inputEl = document.getElementById(`commentInput-${itemId}`);
+          if (inputEl) {
+            addComment(itemId, inputEl.value);
+            inputEl.value = '';
+          }
+        });
+      });
+    }
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+      return c;
+    });
+  }
+
+  // refresh toàn bộ giao diện
+  function refreshAll() {
+    itemsArray = getItems();   // đồng bộ lại
+    renderAuth();
+    renderCategoryMenu();
+    renderAdminPanel();
+    renderCurrentView();
+  }
+
+  // lắng nghe thêm mới
+  addBtn.addEventListener('click', addNewItem);
+
+  // Khởi tạo dữ liệu và chạy
+  initData();
+  // đồng bộ currentUser từ session
+  const sessionData = getSession();
+  if (sessionData) currentUser = sessionData;
+  itemsArray = getItems();
+  refreshAll();
+</script>
+</body>
+</html>
