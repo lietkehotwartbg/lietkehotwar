@@ -1,255 +1,160 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <!-- Firebase SDK compat (phiên bản cũ) -->
     <script src="https://www.gstatic.com/firebasejs/12.13.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/12.13.0/firebase-auth-compat.js"></script>
-    
     <meta name="google-site-verification" content="XZZ8MGNN-2UBHQtNMIMNxSULV46_0SxCRN3jI7zCFvM" />
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Hot War TBG - Bảng Xếp Hạng Game Thủ</title>
-    
-    <!-- Font Awesome & Google Fonts -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hot War TBG - Đồng bộ Firestore</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-        }
-
-        body {
-            background: linear-gradient(145deg, #f0f4fc 0%, #e6ecf4 100%);
-            min-height: 100vh;
-            padding: 30px 20px 60px;
-        }
-
-        .app-container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .top-bar {
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(12px);
-            border-radius: 48px;
-            padding: 12px 28px;
-            margin-bottom: 35px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            border: 1px solid rgba(255,255,255,0.6);
-        }
-
-        .logo-area h2 {
-            font-weight: 700;
-            background: linear-gradient(135deg, #1e2b3c, #1a4a6e);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-            font-size: 1.7rem;
-        }
-
-        .nav-menu {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .nav-btn {
-            background: transparent;
-            border: none;
-            padding: 8px 20px;
-            font-weight: 600;
-            font-size: 1rem;
-            border-radius: 40px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            color: #2c3e4e;
-        }
-
-        .nav-btn i { margin-right: 8px; }
-        .nav-btn.active {
-            background: #1e4663;
-            color: white;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-
-        .auth-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn-login, .btn-logout, .btn-reg {
-            padding: 8px 20px;
-            border-radius: 40px;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-        }
-        .btn-login { background: #2c5a7a; color: white; }
-        .btn-reg { background: #e9ecef; color: #1f3b4c; }
-        .btn-logout { background: #b91c1c; color: white; }
-
-        .section-title {
-            font-size: 2rem;
-            font-weight: 700;
-            margin: 15px 0 20px 0;
-            padding-left: 12px;
-            border-left: 7px solid #2c5a7a;
-            color: #1a2c38;
-        }
-
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
-        }
-
-        .player-card {
-            background: white;
-            border-radius: 32px;
-            padding: 20px;
-            box-shadow: 0 12px 28px rgba(0,0,0,0.08);
-            transition: transform 0.2s;
-        }
-        .player-card:hover { transform: translateY(-5px); }
-
-        .player-img {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-            border-radius: 24px;
-            background: #d9e2ec;
-            margin-bottom: 15px;
-        }
-
-        .player-name {
-            font-size: 1.6rem;
-            font-weight: 700;
-            color: #0c2e42;
-        }
-
-        .player-desc {
-            color: #2c5a6e;
-            margin: 10px 0;
-            font-size: 0.9rem;
-        }
-
-        .admin-actions {
-            display: flex;
-            gap: 12px;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #eef2f7;
-        }
-
-        .btn-edit, .btn-delete {
-            padding: 6px 12px;
-            border-radius: 30px;
-            border: none;
-            cursor: pointer;
-        }
-        .btn-edit { background: #eef2fa; color: #1e5f7e; }
-        .btn-delete { background: #fee9e6; color: #c7362b; }
-
-        .comment-section {
-            margin-top: 12px;
-            border-top: 1px dashed #cbdde9;
-            padding-top: 12px;
-        }
-        .comment-list { font-size: 0.75rem; color: #3a5a6e; margin-bottom: 8px; max-height: 100px; overflow-y: auto; }
-        .comment-input-area { display: flex; gap: 8px; }
-        .comment-input { flex:1; padding: 6px 10px; border-radius: 30px; border: 1px solid #cbdbe0; }
-        .comment-submit { background: #2c5a7a; color: white; border: none; border-radius: 30px; padding: 0 12px; cursor: pointer; }
-
-        .form-panel {
-            background: white;
-            border-radius: 32px;
-            padding: 24px 28px;
-            margin: 20px 0 30px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.05);
-        }
-        .form-group { margin-bottom: 18px; }
-        .form-group label { font-weight: 600; display: block; margin-bottom: 6px; color: #1f4865; }
-        input, textarea, select {
-            width: 100%;
-            padding: 12px 16px;
-            border-radius: 28px;
-            border: 1px solid #ccdbe8;
-        }
-        .submit-btn { background: #1e6f5c; color: white; border: none; padding: 12px 28px; border-radius: 40px; font-weight: 700; cursor: pointer; }
-
-        footer { text-align: center; margin-top: 50px; color: #5f7f97; }
-        @media (max-width: 720px) {
-            .top-bar { flex-direction: column; }
-            .nav-menu { justify-content: center; }
-        }
-  </style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
+        body { background:#f0f4fc; padding:30px 20px; }
+        .app-container { max-width:1400px; margin:0 auto; }
+        .top-bar { background:rgba(255,255,255,0.92); backdrop-filter:blur(12px); border-radius:48px; padding:12px 28px; margin-bottom:35px; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; }
+        .logo h2 { background:linear-gradient(135deg,#1e2b3c,#1a4a6e); background-clip:text; -webkit-background-clip:text; color:transparent; }
+        .nav-menu { display:flex; gap:12px; flex-wrap:wrap; }
+        .nav-btn { background:transparent; border:none; padding:8px 20px; font-weight:600; border-radius:40px; cursor:pointer; }
+        .nav-btn.active { background:#1e4663; color:white; }
+        .auth-buttons { display:flex; gap:10px; }
+        .btn-login, .btn-reg, .btn-logout { padding:8px 20px; border-radius:40px; font-weight:600; border:none; cursor:pointer; }
+        .btn-login { background:#2c5a7a; color:white; }
+        .btn-reg { background:#e9ecef; }
+        .btn-logout { background:#b91c1c; color:white; }
+        .section-title { font-size:2rem; font-weight:700; margin:15px 0 20px; border-left:7px solid #2c5a7a; padding-left:12px; }
+        .cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:25px; margin-bottom:40px; }
+        .player-card { background:white; border-radius:32px; padding:20px; box-shadow:0 8px 20px rgba(0,0,0,0.08); }
+        .player-img { width:100%; height:180px; object-fit:cover; border-radius:24px; background:#d9e2ec; margin-bottom:15px; }
+        .player-name { font-size:1.6rem; font-weight:700; }
+        .player-desc { color:#2c5a6e; margin:10px 0; }
+        .admin-actions { margin-top:15px; padding-top:15px; border-top:1px solid #eef2f7; display:flex; gap:12px; }
+        .btn-edit, .btn-delete { padding:6px 12px; border-radius:30px; border:none; cursor:pointer; }
+        .btn-edit { background:#eef2fa; }
+        .btn-delete { background:#fee9e6; color:#c7362b; }
+        .comment-section { margin-top:12px; border-top:1px dashed #cbdde9; padding-top:12px; }
+        .comment-list { font-size:0.75rem; max-height:100px; overflow-y:auto; margin-bottom:8px; }
+        .comment-input-area { display:flex; gap:8px; }
+        .comment-input { flex:1; padding:6px 10px; border-radius:30px; border:1px solid #cbdbe0; }
+        .comment-submit { background:#2c5a7a; color:white; border:none; border-radius:30px; padding:0 12px; cursor:pointer; }
+        .form-panel { background:white; border-radius:32px; padding:24px; margin:20px 0; }
+        .form-group { margin-bottom:18px; }
+        input, textarea, select { width:100%; padding:12px 16px; border-radius:28px; border:1px solid #ccdbe8; }
+        .submit-btn { background:#1e6f5c; color:white; border:none; padding:12px 28px; border-radius:40px; font-weight:700; cursor:pointer; }
+        footer { text-align:center; margin-top:50px; color:#5f7f97; }
+    </style>
 </head>
 <body>
-<div class="app-container" id="app">
-  <!-- header -->
-  <div class="top-bar">
-    <div class="logo"><h1>✨ InfoHub · Quản lý nhân vật</h1></div>
-    <!-- Thanh tìm kiếm mới -->
-    <div class="search-box">
-      <input type="text" id="searchInput" placeholder="🔍 Tìm kiếm theo tên..." />
-      <button id="clearSearchBtn" title="Xóa tìm kiếm">✖️</button>
+<div class="app-container">
+    <div class="top-bar">
+        <div class="logo"><h2>🔥 HOT WAR TBG</h2></div>
+        <div class="nav-menu">
+            <button class="nav-btn active" data-cat="hotgo"><i class="fas fa-keyboard"></i> Hot Gõ</button>
+            <button class="nav-btn" data-cat="hottreo"><i class="fas fa-hourglass-half"></i> Hot Treo</button>
+            <button class="nav-btn" data-cat="hotmic"><i class="fas fa-microphone-alt"></i> Hot Mic</button>
+            <button class="nav-btn" data-cat="hotdame"><i class="fas fa-skull-crossbones"></i> Hot Dame</button>
+        </div>
+        <div class="auth-buttons" id="authWidget">
+            <button class="btn-login" id="showLoginBtn">Đăng nhập</button>
+            <button class="btn-reg" id="showRegisterBtn">Đăng ký</button>
+        </div>
     </div>
-    <div class="auth-buttons" id="authArea"></div>
-  </div>
-
-  <!-- menu 4 phần -->
-  <div class="category-menu" id="categoryMenu"></div>
-
-  <!-- admin panel (chỉ hiện với admin) -->
-  <div id="adminPanel" class="admin-panel hidden">
-    <div class="admin-title">🛠️ [Admin] Thêm / Cập nhật thông tin mới</div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Chuyên mục</label>
-        <select id="newCategory"></select>
-      </div>
-      <div class="form-group">
-        <label>Tên nhân vật</label>
-        <input type="text" id="newName" placeholder="VD: Đình Vũ">
-      </div>
-      <div class="form-group">
-        <label>Mô tả</label>
-        <textarea id="newDesc" rows="1" placeholder="Thông tin chi tiết..."></textarea>
-      </div>
-      <div class="form-group">
-        <label>Hình ảnh (URL hoặc tải ảnh)</label>
-        <input type="file" id="imageUpload" accept="image/*">
-        <input type="text" id="imageUrl" placeholder="Hoặc dán URL ảnh" style="margin-top: 6px;">
-      </div>
-      <div class="form-group">
-        <button id="addItemBtn" class="primary" style="margin-top: 22px;">➕ Thêm thông tin</button>
-      </div>
+    <div id="dynamicContent">
+        <div class="section-title" id="currentCategoryTitle">Hot Gõ</div>
+        <div class="cards-grid" id="playersGrid">Đang tải dữ liệu...</div>
     </div>
-  </div>
-
-  <!-- khu vực hiển thị grid -->
-  <div id="contentGrid" class="info-grid"></div>
-  <footer>📌 Chỉ Admin mới có quyền thêm/xóa. Người dùng cần đăng nhập để bình luận.</footer>
+    <div id="adminPanel" style="display:none;">
+        <div class="form-panel">
+            <h3>👑 Quản trị viên</h3>
+            <form id="playerForm">
+                <input type="hidden" id="editId">
+                <div class="form-group"><label>Tên người chơi</label><input type="text" id="playerName" required></div>
+                <div class="form-group"><label>Mô tả</label><textarea id="playerDesc" rows="3"></textarea></div>
+                <div class="form-group">
+                    <label>Danh mục</label>
+                    <select id="playerCategory">
+                        <option value="hotgo">Hot Gõ</option><option value="hottreo">Hot Treo</option>
+                        <option value="hotmic">Hot Mic</option><option value="hotdame">Hot Dame</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>URL hình ảnh</label><input type="text" id="playerImage" placeholder="https://..."></div>
+                <button type="submit" class="submit-btn">Lưu thông tin</button>
+                <button type="button" id="cancelEditBtn">Hủy</button>
+            </form>
+        </div>
+    </div>
+    <footer>© 2025 Hot War TBG - Dữ liệu đồng bộ realtime qua Firestore</footer>
 </div>
 
 <script>
-  // ---------- DỮ LIỆU MẪU & CẤU HÌNH ----------
-  const STORAGE_KEYS = {
-    USERS: 'infohub_users',
-    ITEMS: 'infohub_items',
-    SESSION: 'infohub_session'
-  };
+    // Cấu hình Firebase của bạn
+    const firebaseConfig = {
+        apiKey: "AIzaSyDAroYIQHEuqNZA8Am3yWCRpKKFMzFqZ0o",
+        authDomain: "hot-war-tbg-data.firebaseapp.com",
+        projectId: "hot-war-tbg-data",
+        storageBucket: "hot-war-tbg-data.firebasestorage.app",
+        messagingSenderId: "241272113547",
+        appId: "1:241272113547:web:d4d654830805fe5168c78e",
+        measurementId: "G-1BPFVDNYWN"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    let currentCategory = "hotgo";
+    let allPlayers = [];
+    let currentUser = null;
+    const ADMIN_EMAIL = "saikydz1237@hotwar-tbg.com";
+
+    // DOM elements
+    const playersGrid = document.getElementById("playersGrid");
+    const currentCategoryTitle = document.getElementById("currentCategoryTitle");
+    const adminPanelDiv = document.getElementById("adminPanel");
+    const playerForm = document.getElementById("playerForm");
+    const editIdInput = document.getElementById("editId");
+    const playerNameInput = document.getElementById("playerName");
+    const playerDescInput = document.getElementById("playerDesc");
+    const playerCategorySelect = document.getElementById("playerCategory");
+    const playerImageInput = document.getElementById("playerImage");
+    const cancelEditBtn = document.getElementById("cancelEditBtn");
+
+    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){ return m==='&'?'&amp;':m==='<'?'&lt;':'&gt;'; }); }
+
+    function renderComments(comments) {
+        if(!comments || comments.length===0) return "<em>Chưa có bình luận</em>";
+        return comments.slice().reverse().map(c => `<div><strong>${escapeHtml(c.author)}</strong>: ${escapeHtml(c.text)}</div>`).join('');
+    }
+
+    function renderCurrentCategory() {
+        const filtered = allPlayers.filter(p => p.category === currentCategory);
+        if(filtered.length===0) {
+            playersGrid.innerHTML = `<div style="grid-column:1/-1; text-align:center;">✨ Chưa có dữ liệu, admin hãy thêm ✨</div>`;
+            return;
+        }
+        playersGrid.innerHTML = filtered.map(player => `
+            <div class="player-card" data-id="${player.id}">
+                <img class="player-img" src="${player.imageUrl || 'https://via.placeholder.com/300x180?text=Avatar'}" onerror="this.src='https://via.placeholder.com/300x180?text=No+Image'">
+                <div class="player-name">${escapeHtml(player.name)}</div>
+                <div class="player-desc">${escapeHtml(player.description||'')}</div>
+                ${currentUser ? `
+                    <div class="comment-section">
+                        <div class="comment-list" id="comments-${player.id}">${renderComments(player.comments||[])}</div>
+                        <div class="comment-input-area">
+                            <input type="text" class="comment-input" id="commentInput-${player.id}" placeholder="Viết bình luận...">
+                            <button class="comment-submit" data-id="${player.id}">Gửi</button>
+                        </div>
+                    </div>
+                ` : `<div style="font-size:0.7rem; color:#819db0;"><i class="fas fa-lock"></i> Đăng nhập để bình luận</div>`}
+                ${(currentUser && currentUser.email===ADMIN_EMAIL) ? `
+                    <div class="admin-actions">
+                        <button class="btn-edit" data-id="${player.id}" data-name="${escapeHtml(player.name)}" data-desc="${escapeHtml(player.description||'')}" data-cat="${player.category}" data-img="${player.imageUrl||''}">✏️ Sửa</button>
+                        <button class="btn-delete" data-id="${player.id}">🗑️ Xóa</button>
+                    </div>
+                ` : ''}
+            </div>
+        `).join('');
   // categories mapping
   const CATEGORIES = [
     { id: "hot_go", label: "🔥 Hot gõ" },
